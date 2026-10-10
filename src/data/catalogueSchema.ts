@@ -1,0 +1,15 @@
+import { z } from 'zod';
+const https = z.string().url().refine(v => v.startsWith('https://'), 'HTTPS required');
+const date = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
+const verification = z.enum(['official_current','official_prior_cycle','institution_notice','secondary_only','unverified']);
+const source = z.object({id:z.string(),url:z.string().url(),publisher:z.string(),documentDate:date.nullable(),checkedAt:date,cycleCovered:z.string().nullable(),verification});
+const doc = z.object({id:z.string(),label:z.string(),requirement:z.enum(['required','conditional','preparation_only']),condition:z.string().optional(),sourceIds:z.array(z.string()),verification});
+export const scholarshipSchema = z.object({
+ id:z.string(),familyId:z.string().optional(),name:z.string(),authority:z.string(),geography:z.object({state:z.literal('KA'),national:z.boolean(),domicileRule:z.string()}),benefitType:z.enum(['scholarship','fee_reimbursement','hostel','prize']),categories:z.array(z.string()),
+ eligibility:z.object({casteSubcategories:z.array(z.string()).optional(),minorityCommunities:z.array(z.string()).optional(),levels:z.array(z.string()),incomeRules:z.array(z.object({appliesTo:z.string(),basis:z.enum(['annual_family_income','monthly_parent_salary']),maxINR:z.number().positive(),inclusive:z.boolean(),sourceId:z.string(),verification})),incomeRuleStatus:z.enum(['verified','unknown','explicitly_no_limit']),otherConditions:z.array(z.string()),verification}),
+ benefits:z.array(z.object({appliesTo:z.string(),kind:z.enum(['fixed','capped','fee_based','in_kind','unknown']),amountINR:z.number().positive().nullable(),unit:z.enum(['year','month','one_time','course','not_applicable']),description:z.string(),sourceIds:z.array(z.string()),verification})),
+ cycles:z.array(z.object({academicYear:z.string(),mode:z.enum(['fresh','renewal']),opensOn:date.nullable(),closesOn:date.nullable(),closesAt:z.string().nullable(),timezone:z.literal('Asia/Kolkata'),status:z.enum(['verified','verify_on_portal','not_applicable']),sourceIds:z.array(z.string()),checkedAt:date,documents:z.array(doc),checklistStatus:z.enum(['verified','provisional'])})),
+ links:z.object({officialSchemeUrl:https.nullable(),applicationUrl:https.nullable(),applicationLinkType:z.enum(['exact_scheme','shared_portal','unverified']),fallbackNoticeUrl:https.nullable(),checkedAt:date}),sources:z.array(source)
+});
+export const catalogueSchema = z.object({schemaVersion:z.literal(1),dataVersion:z.number().int().positive(),academicYear:z.literal('2026-27'),publishedAt:date,scholarships:z.array(scholarshipSchema).max(500)}).superRefine((c,ctx)=>{const ids=c.scholarships.map(s=>s.id);if(new Set(ids).size!==ids.length)ctx.addIssue({code:'custom',message:'Duplicate IDs'});for(const s of c.scholarships)for(const cycle of s.cycles){if(cycle.academicYear!==c.academicYear || (cycle.status==='verified' && (!cycle.closesOn || !cycle.sourceIds.length)))ctx.addIssue({code:'custom',message:'Invalid verified cycle'});}});
+export const manifestSchema = z.object({schemaVersion:z.literal(1),dataVersion:z.number().int().positive(),url:https,sha256:z.string().regex(/^[a-f0-9]{64}$/)});
