@@ -35,7 +35,8 @@
     "typecheck": "tsc --noEmit",
     "validate:data": "tsx scripts/validate-catalogue.ts",
     "publish:data": "tsx scripts/publish-catalogue.ts",
-    "test": "tsx --test tests/*.test.ts"
+    "test": "tsx --test tests/*.test.ts",
+    "postinstall": "node scripts/materialize-assets.cjs"
   },
   "private": true
 }
