@@ -1,0 +1,27 @@
+{
+  "expo": {
+    "name": "Sarathi",
+    "slug": "sarathi",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "package": "com.chethankumargs.sarathi",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/icon.png",
+        "backgroundColor": "#071a36"
+      }
+    },
+    "web": {
+      "bundler": "metro"
+    },
+    "scheme": "sarathi",
+    "plugins": [
+      "expo-notifications"
+    ]
+  }
+}
