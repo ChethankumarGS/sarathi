@@ -1,0 +1,3 @@
+import { Scholarship, ReminderPreference } from '../types/scholarship';
+import { reminderTimes, deadlinePassed } from '../utils/indiaDates';
+export function planReminder(s:Scholarship|undefined,r:ReminderPreference,now=Date.now()){const c=s?.cycles.find(c=>c.mode===r.mode&&c.academicYear===r.academicYear);if(!c||c.status!=='verified'||!c.closesOn||deadlinePassed(c.closesOn,now))return {deadline:null,times:[] as string[],unavailable:true};const custom=r.customDate?[r.customDate].filter(t=>Date.parse(t)>now&&Date.parse(t)<Date.parse(c.closesOn!+'T00:00:00+05:30')+86400000):[];return {deadline:c.closesOn,times:[...new Set([...reminderTimes(c.closesOn,r.offsets,now),...custom])].sort(),unavailable:false};}
