@@ -58,6 +58,10 @@ The manifest points at raw GitHub JSON in this repository. The SHA-256 checksum 
 
 On launch/refresh, local reminders are reconciled even if the catalogue version did not change. Old notification IDs are cancelled before replacement. Postponed/shortened verified dates reschedule selected offsets. Unknown, removed, past or retired deadlines cancel existing notifications and appear unavailable. Custom reminder dates remain explicit user choices. Permissions or channel problems also appear unavailable. Device battery settings, reboot behaviour and Android scheduling restrictions can delay delivery; 9 AM is a target, not a minute-perfect promise. A phone that never reopens the app will not learn a changed deadline instantly.
 
+## Web UI smoke test
+
+After `npx expo export --platform web` and `npx playwright install chromium`, run `node tests/preview.cjs`. This checks all five screens at a 390px viewport.
+
 ## Checks and remaining release work
 
 TypeScript, catalogue validation, Expo dependency compatibility and web export are checked. Unit tests cover date postponement/removal, unknown deadlines, year/mode separation, malformed links, filter separation and duplicate/past offsets. Web UI smoke tests cover navigation and checkmarks at a 390px mobile viewport.
