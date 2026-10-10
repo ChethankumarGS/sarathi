@@ -1,0 +1,2 @@
+import React from 'react';import { View,Pressable,Text } from 'react-native';import { ApplicationMode } from '../types/scholarship';import { styles } from './ui';
+export function ModeSwitch({value,onChange}:{value:ApplicationMode;onChange:(v:ApplicationMode)=>void}){return <View style={styles.row}>{(['fresh','renewal'] as const).map(m=><Pressable key={m} accessibilityRole="button" style={[styles.chip,value===m&&styles.selected]} onPress={()=>onChange(m)}><Text>{m==='fresh'?'Fresh application':'Renewal'}</Text></Pressable>)}</View>;}
