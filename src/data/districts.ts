@@ -1,0 +1,5 @@
+// Official district directory checked 2026-10-11: https://karnataka.s3waas.gov.in/
+// Mandya: https://mandya.nic.in/en/ ; renamed district: https://bengalurusouth.nic.in/en/
+export const districts=['Bagalkote','Ballari','Belagavi','Bengaluru Rural','Bengaluru South','Bengaluru Urban','Bidar','Chamarajanagar','Chikkaballapur','Chikkamagaluru','Chitradurga','Dakshina Kannada','Davanagere','Dharwad','Gadag','Hassan','Haveri','Kalaburagi','Kodagu','Kolar','Koppal','Mandya','Mysuru','Raichur','Shivamogga','Tumakuru','Udupi','Uttara Kannada','Vijayanagara','Vijayapura','Yadgiri'];
+const aliases:Record<string,string[]>={'Bengaluru South':['Ramanagara','Bangalore South'],'Bengaluru Urban':['Bangalore Urban'],'Bengaluru Rural':['Bangalore Rural'],'Ballari':['Bellary'],'Belagavi':['Belgaum'],'Kalaburagi':['Gulbarga'],'Mysuru':['Mysore'],'Shivamogga':['Shimoga'],'Tumakuru':['Tumkur'],'Vijayapura':['Bijapur'],'Chikkaballapur':['Chikkaballapura'],'Yadgiri':['Yadgir']};
+export const matchingDistricts=(query:string)=>districts.filter(d=>[d,...(aliases[d]||[])].some(n=>n.toLowerCase().startsWith(query.trim().toLowerCase())));
