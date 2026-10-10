@@ -18,11 +18,14 @@ Benefit descriptions retain source caveats. Older guideline rates, institution n
 
 This is a review/development catalogue, not a production-certified scholarship database. Before releasing publicly, verify current state circulars, forms, rates and document rules. Do not promise automatic submission, eligibility or guaranteed notifications.
 
+The selected gold-wheel icon is stored as text chunks and restored by the setup script because the publishing upload route did not preserve binary filenames. The lockfile is restored by the same script. No image is fetched from a third-party host.
+
 ## Run
 
 Use Node 22+ and npm:
 
 ```sh
+node scripts/materialize-assets.cjs
 npm ci
 npm run typecheck
 npm test
