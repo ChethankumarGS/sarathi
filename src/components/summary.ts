@@ -1,0 +1,3 @@
+import {Scholarship} from '../types/scholarship';
+export function benefitSummary(s:Scholarship){const b=s.benefits[0];return b.amountINR?`₹${b.amountINR.toLocaleString('en-IN')} / ${b.unit==='year'?'year':b.unit.replaceAll('_',' ')}`:s.benefitType==='hostel'?'Hostel support · check terms':s.benefitType==='fee_reimbursement'?'Eligible fees · check rates':'Amount: check portal';}
+export function shortName(s:Scholarship){return s.name.split(',')[0].replace(' Scholarship for SC students',' · SC').replace(' Scholarship for ST students',' · ST').replace('National Means-cum-Merit Scholarship','National Means-cum-Merit');}
