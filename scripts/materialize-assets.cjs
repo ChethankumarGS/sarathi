@@ -1,0 +1,1 @@
+const fs=require('fs'),path=require('path');const root=path.join(__dirname,'..');const text=["assets/icon.part0.txt", "assets/icon.part1.txt", "assets/icon.part2.txt", "assets/icon.part3.txt"].map(p=>fs.readFileSync(path.join(root,p),'utf8')).join('');fs.writeFileSync(path.join(root,'assets/icon.png'),Buffer.from(text,'base64'));
