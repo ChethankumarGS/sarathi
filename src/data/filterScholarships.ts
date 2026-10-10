@@ -1,0 +1,5 @@
+import { Scholarship } from '../types/scholarship';
+export interface Filters { caste:string; minority:boolean; economic:boolean; level:string; income:string; }
+export const emptyFilters:Filters={caste:'',minority:false,economic:false,level:'',income:''};
+export function filterScholarships(items:Scholarship[],query:string,f:Filters){return items.filter(s=>s.name.toLowerCase().includes(query.toLowerCase()) && (!f.caste||s.categories.includes(f.caste)) && (!f.minority||s.categories.includes('minority')) && (!f.economic||s.categories.includes('EBC')) && (!f.level||s.eligibility.levels.includes(f.level)) && (!f.income || s.eligibility.incomeRuleStatus!=='verified' || s.eligibility.incomeRules.every(r=>r.basis==='monthly_parent_salary') || s.eligibility.incomeRules.some(r=>r.basis==='annual_family_income' && (r.inclusive?Number(f.income)<=r.maxINR:Number(f.income)<r.maxINR))));}
+export function groupFamilies(items:Scholarship[]){const map=new Map<string,Scholarship[]>();for(const s of items){const key=s.familyId||s.id;map.set(key,[...(map.get(key)||[]),s]);}return [...map.values()];}
