@@ -4,7 +4,7 @@ Find scholarship and education support, prepare documents and keep local deadlin
 
 ## What v1 does
 
-- Browse 20 catalogue records in 17 scheme families; filter caste, minority, economic status, course and annual income separately.
+- Browse 20 catalogue records in 17 scheme families; choose district preference, community, income band and education, plus girls/disability/hosteller support tags. District and EWS rules remain unverified and do not exclude schemes; income bands are discovery aids, not exact-income eligibility decisions.
 - See benefits, source labels, fresh/renewal dates and last-checked dates. Shared portals are labelled, never disguised as exact scheme links.
 - Save a document checklist locally, isolated by scheme, academic year and application mode.
 - Opt into 7/3/1-day reminders or a custom date at 9 AM IST. Only verified future student deadlines can generate reminders.
