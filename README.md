@@ -1,5 +1,7 @@
 # Sarathi
 
+**Live app:** https://sarathi-wine.vercel.app/
+
 Find scholarship and education support, prepare documents and keep local deadline reminders. Built for Karnataka students with React Native, TypeScript and Expo. Android first, with a web preview for UI testing.
 
 ## What v1 does
