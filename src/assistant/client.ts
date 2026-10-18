@@ -20,7 +20,16 @@ export async function isAiAvailable(): Promise<boolean> {
   } catch { return false; } finally { clearTimeout(timer); }
 }
 
+// One quiet retry for slow or failed AI calls. Not-configured and busy answers are final.
 export async function understandProfile(message: string): Promise<StudentProfile> {
+  try { return await understandOnce(message); } catch (e) {
+    const code = (e as Error).message;
+    if (code === 'AI_NOT_CONFIGURED' || code === 'AI_BUSY') throw e;
+    return understandOnce(message);
+  }
+}
+
+async function understandOnce(message: string): Promise<StudentProfile> {
   const configured = process.env.EXPO_PUBLIC_ASSISTANT_API_URL;
   const url = configured || (Platform.OS === 'web' ? '/api/assistant' : '');
   if (!url) throw new Error('AI_NOT_CONFIGURED');
