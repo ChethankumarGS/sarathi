@@ -6,7 +6,7 @@ Find scholarship and education support, prepare documents and keep local deadlin
 
 ## What v1 does
 
-- Browse 20 catalogue records in 17 scheme families; choose district preference, community, income band and education, plus girls/disability/hosteller support tags. District and EWS rules remain unverified and do not exclude schemes; income bands are discovery aids, not exact-income eligibility decisions.
+- Browse 20 catalogue records in 17 scheme families; choose district preference, community, income band and education, plus girls/disability/hosteller support tags. District and EWS rules remain unverified and do not exclude schemes; income bands are discovery aids, not exact-income eligibility decisions; selecting income now hides unverified income rules.
 - See benefits, source labels, fresh/renewal dates and last-checked dates. Shared portals are labelled, never disguised as exact scheme links.
 - Save a document checklist locally, isolated by scheme, academic year and application mode.
 - Opt into 7/3/1-day reminders or a custom date at 9 AM IST. Only verified future student deadlines can generate reminders.
@@ -62,7 +62,7 @@ On launch/refresh, local reminders are reconciled even if the catalogue version 
 
 ## Web UI smoke test
 
-After `npx expo export --platform web` and `npx playwright install chromium`, run `node tests/preview.cjs`. This checks all five screens at a 390px viewport.
+After `npx expo export --platform web` and `npx playwright install chromium`, run `node tests/preview.cjs`. This checks Browse, Assistant, reminders and settings at a 390px viewport, including Kannada, course/year questions and income-filtered empty states.
 
 ## Checks and remaining release work
 
@@ -73,3 +73,7 @@ Still required before release: physical Android permission/channel tests, denied
 Dependency audit currently reports upstream Expo/Metro tooling advisories. Do not apply `npm audit fix --force` blindly; review supported upstream upgrades before a production build.
 
 No user accounts, uploads, sensitive document numbers, application tracking or government submissions are included.
+
+## Scholarship assistant
+
+See [ASSISTANT.md](ASSISTANT.md) for the new Assistant tab, course/year questions, exact-income matching, Kannada/English controls, optional server-side AI, testing and launch limits. AI is disabled until explicitly configured.

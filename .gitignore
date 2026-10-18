@@ -42,3 +42,11 @@ yarn-error.*
 /dist/
 /test-results/
 /playwright-report/
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Reconstructed by postinstall
+/assets/icon.png
