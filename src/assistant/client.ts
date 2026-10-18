@@ -1,6 +1,25 @@
 import { Platform } from 'react-native';
 import { StudentProfile, studentProfileSchema } from './profile';
 
+function assistantUrl(): string {
+  const configured = process.env.EXPO_PUBLIC_ASSISTANT_API_URL;
+  return configured || (Platform.OS === 'web' ? '/api/assistant' : '');
+}
+
+// True only when the server says AI is switched on. Any failure means "not available", never an error.
+export async function isAiAvailable(): Promise<boolean> {
+  const url = assistantUrl();
+  if (!url) return false;
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 6_000);
+  try {
+    const response = await fetch(url, { method: 'GET', signal: controller.signal });
+    if (!response.ok) return false;
+    const data = await response.json();
+    return data?.enabled === true;
+  } catch { return false; } finally { clearTimeout(timer); }
+}
+
 export async function understandProfile(message: string): Promise<StudentProfile> {
   const configured = process.env.EXPO_PUBLIC_ASSISTANT_API_URL;
   const url = configured || (Platform.OS === 'web' ? '/api/assistant' : '');
@@ -10,7 +29,7 @@ export async function understandProfile(message: string): Promise<StudentProfile
     throw new Error('AI_NOT_CONFIGURED');
   }
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 20_000);
+  const timer = setTimeout(() => controller.abort(), 30_000);
   try {
     const response = await fetch(url, {
       method: 'POST', headers: { 'Content-Type': 'application/json' },

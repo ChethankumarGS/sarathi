@@ -1,12 +1,12 @@
 import { shortName } from '../components/summary';
 import { Disclosure } from '../components/Disclosure';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput, Pressable, Linking } from 'react-native';
 import { Page, Title, Body, Notice, Button, useStyles } from '../components/ui';
 import { useTheme } from '../theme';
 import { useApp } from '../data/AppContext';
 import { categories, levels, courses, Course, emptyProfile, StudentProfile, parseOptionalNumber } from '../assistant/profile';
-import { understandProfile } from '../assistant/client';
+import { understandProfile, isAiAvailable } from '../assistant/client';
 import { matchScholarships, incomeOmissions, yearOmissionCount } from '../assistant/match';
 import { dateLabel } from '../utils/indiaDates';
 
@@ -16,6 +16,8 @@ export function AssistantScreen({ navigation }: any) {
   const [income, setIncome] = useState(''), [marks, setMarks] = useState(''), [message, setMessage] = useState('');
   const [consent, setConsent] = useState(false), [busy, setBusy] = useState(false), [error, setError] = useState('');
   const [showResults, setShowResults] = useState(false), [aiReviewed, setAiReviewed] = useState(false);
+  const [aiOn, setAiOn] = useState(false);
+  useEffect(() => { let live = true; void isAiAvailable().then(v => { if (live) setAiOn(v); }); return () => { live = false; }; }, []);
   const t = (en: string, ka: string) => kn ? ka : en;
   function update(patch: Partial<StudentProfile>) { setProfile(p => ({ ...p, ...patch })); setShowResults(false); }
   function choices<T extends string | number>(values: readonly T[], selected: T | null, onSelect: (v: T) => void, label?: (v: T) => string) {
@@ -41,7 +43,7 @@ export function AssistantScreen({ navigation }: any) {
       setProfile(result); setIncome(result.annualIncome === null ? '' : String(result.annualIncome));
       setMarks(result.marksPercent === null ? '' : String(result.marksPercent)); setAiReviewed(true);
     } catch (e) {
-      setError(t((e as Error).message === 'AI_NOT_CONFIGURED' ? 'AI text understanding is not configured. Use the form below, no key needed.' : 'AI could not read that right now. Use the form below.', 'ಈಗ AI ಲಭ್ಯವಿಲ್ಲ. ಕೆಳಗಿನ ಪ್ರಶ್ನೆಗಳಿಗೆ ಉತ್ತರಿಸಿ.'));
+      setError(t((e as Error).message === 'AI_NOT_CONFIGURED' ? 'Typing your details is not available right now. Use the questions below.' : 'AI could not read that right now. Use the form below.', 'ಈಗ AI ಲಭ್ಯವಿಲ್ಲ. ಕೆಳಗಿನ ಪ್ರಶ್ನೆಗಳಿಗೆ ಉತ್ತರಿಸಿ.'));
     } finally { setBusy(false); }
   }
   const course = profile.course ? courses[profile.course] : null;
@@ -52,13 +54,13 @@ export function AssistantScreen({ navigation }: any) {
     <View style={[styles.row, { justifyContent: 'space-between', alignItems: 'center' }]}><Title>{t('Scholarship assistant', 'ವಿದ್ಯಾರ್ಥಿವೇತನ ಸಹಾಯಕ')}</Title>{choices(['English', 'ಕನ್ನಡ'], kn ? 'ಕನ್ನಡ' : 'English', v => setKn(v === 'ಕನ್ನಡ'))}</View>
     <Body>{t('Find possible matches. Check the official rules before applying.', 'ನಿಮಗೆ ಹೊಂದಬಹುದಾದ ವಿದ್ಯಾರ್ಥಿವೇತನಗಳನ್ನು ಹುಡುಕಿ. ಅರ್ಜಿ ಸಲ್ಲಿಸುವ ಮೊದಲು ಅಧಿಕೃತ ನಿಯಮಗಳನ್ನು ಪರಿಶೀಲಿಸಿ.')}</Body>
     <Notice>{t('The form works offline. It is not an AI eligibility decision. No profile is saved. Do not enter Aadhaar, phone, bank or document numbers.', 'ಈ ಪ್ರಶ್ನೆಗಳು ಆಫ್‌ಲೈನ್‌ನಲ್ಲೂ ಕೆಲಸ ಮಾಡುತ್ತವೆ. ಇದು AI ಅರ್ಹತಾ ನಿರ್ಧಾರವಲ್ಲ. ನಿಮ್ಮ ವಿವರಗಳನ್ನು ಉಳಿಸುವುದಿಲ್ಲ. ಆಧಾರ್, ಫೋನ್ ಅಥವಾ ಬ್ಯಾಂಕ್ ಸಂಖ್ಯೆ ಬರೆಯಬೇಡಿ.')}</Notice>
-    <View style={styles.card}>
+    {aiOn && <View style={styles.card}>
       <Text style={styles.label}>{t('Optional: describe your studies', 'ಬೇಕಿದ್ದರೆ ನಿಮ್ಮ ವಿದ್ಯಾಭ್ಯಾಸದ ಬಗ್ಗೆ ಬರೆಯಿರಿ')}</Text>
       <TextInput accessibilityLabel={t('Describe your studies', 'ನಿಮ್ಮ ವಿದ್ಯಾಭ್ಯಾಸದ ವಿವರ')} multiline maxLength={800} style={[styles.input, { minHeight: 90 }]} placeholder={t('E.g. OBC, BE 2nd year, family income ₹1.5 lakh a year, 80%, fresh application', 'ಉದಾ: OBC, BE 2ನೇ ವರ್ಷ, ವಾರ್ಷಿಕ ಆದಾಯ ₹1.5 ಲಕ್ಷ, 80%')} placeholderTextColor={colors.muted} value={message} onChangeText={setMessage} />
       <Pressable accessibilityRole="checkbox" accessibilityState={{ checked: consent }} onPress={() => setConsent(!consent)} style={styles.row}><Text style={styles.body}>{consent ? '☑' : '☐'} {t('Send this message to the app server and OpenAI to fill the form. Review it before matching.', 'ಪ್ರಶ್ನೆಗಳನ್ನು ತುಂಬಲು ಈ ಸಂದೇಶವನ್ನು ಆಪ್ ಸರ್ವರ್ ಮತ್ತು OpenAI ಗೆ ಕಳುಹಿಸಲು ಒಪ್ಪುತ್ತೇನೆ. ನಂತರ ವಿವರಗಳನ್ನು ಪರಿಶೀಲಿಸುತ್ತೇನೆ.')}</Text></Pressable>
       <Button label={busy ? t('Reading...', 'ಓದುತ್ತಿದೆ...') : t('Fill with AI', 'AI ಮೂಲಕ ತುಂಬಿಸಿ')} onPress={() => void readMessage()} disabled={!consent || busy || message.trim().length < 5} secondary />
       <Text style={styles.muted}>{t('AI needs a configured server and internet. The form below does not.', 'AI ಗೆ ಸರ್ವರ್ ಮತ್ತು ಇಂಟರ್ನೆಟ್ ಬೇಕು. ಕೆಳಗಿನ ಪ್ರಶ್ನೆಗಳಿಗೆ ಅವು ಬೇಡ.')}</Text>
-    </View>
+    </View>}
     {aiReviewed && <Notice>{t('AI suggested these details. Check every field and correct mistakes before continuing.', 'AI ತುಂಬಿಸಿದ ಎಲ್ಲಾ ವಿವರಗಳನ್ನು ಪರಿಶೀಲಿಸಿ. ತಪ್ಪುಗಳನ್ನು ಸರಿಪಡಿಸಿ.')}</Notice>}
     <View style={styles.card}>
       <Text style={styles.label}>{t('1. Category (choose all that apply)', '1. ವರ್ಗ (ಅನ್ವಯಿಸುವ ಎಲ್ಲವನ್ನೂ ಆಯ್ಕೆ ಮಾಡಿ)')}</Text>
