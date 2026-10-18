@@ -29,15 +29,15 @@ Profile answers and the free-text message live in component memory only, never A
 
 ## Optional real AI
 
-The guided form works without any API key, including offline. The optional AI button sends ONLY the student's typed message, after an explicit consent checkbox, to the app server and OpenAI. AI extracts structured profile suggestions in English or Kannada. The student reviews every field before finding matches. The model has no tools, catalogue access, outgoing action capability or authority to decide eligibility. It cannot generate scholarship dates or documents in the response schema.
+The guided form works without any API key, including offline. The optional AI button sends ONLY the student's typed message, after an explicit consent checkbox, to the app server and the configured AI provider (Gemini or OpenAI). AI extracts structured profile suggestions in English or Kannada. The student reviews every field before finding matches. The model has no tools, catalogue access, outgoing action capability or authority to decide eligibility. It cannot generate scholarship dates or documents in the response schema.
 
-`api/assistant.ts` implements a Vercel-style Node function using the OpenAI Responses API and strict structured outputs. `store: false` is set; this does not promise zero retention by every service. No personal profile logging is added. The endpoint rejects common long-number/email identifiers, but this is not complete personal-data detection. Students must still avoid IDs, names and bank details.
+`api/assistant.ts` implements a Vercel-style Node function using Gemini (structured JSON output) when `GEMINI_API_KEY` is set, otherwise the OpenAI Responses API with strict structured outputs. A GET to the same path returns only `{ enabled }`, so the app can hide the AI box when it is off. Free-tier Gemini keys may let Google use prompts to improve products, so use a paid-tier key before real students rely on the AI box. `store: false` is set; this does not promise zero retention by every service. No personal profile logging is added. The endpoint rejects common long-number/email identifiers, but this is not complete personal-data detection. Students must still avoid IDs, names and bank details.
 
 Copy `.env.example` to `.env.local` locally. Keep it private. Real secrets belong only in the hosting provider's server environment, never in source, commits, chat or `EXPO_PUBLIC_*` variables.
 
 Server variables:
 
-- `OPENAI_API_KEY`: server-side key.
+- `OPENAI_API_KEY` or `GEMINI_API_KEY`: server-side key (Gemini wins if both are set).
 - `SARATHI_AI_MODEL`: a model available in your account supporting Responses API strict structured output. No provider model choice or spending is assumed.
 - `SARATHI_AI_ENABLED=true`: explicit paid-call opt-in. Default is false.
 - `SARATHI_ALLOWED_ORIGINS`: comma-separated exact browser origins, such as the deployed app URL.
