@@ -1,6 +1,7 @@
 import { z } from 'zod';
+import { isCalendarDate } from '../utils/indiaDates';
 const https = z.string().url().refine(v => v.startsWith('https://'), 'HTTPS required');
-const date = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
+const date = z.string().refine(isCalendarDate, 'Valid calendar date required');
 const verification = z.enum(['official_current','official_prior_cycle','institution_notice','secondary_only','unverified']);
 const source = z.object({id:z.string(),url:z.string().url(),publisher:z.string(),documentDate:date.nullable(),checkedAt:date,cycleCovered:z.string().nullable(),verification});
 const doc = z.object({id:z.string(),label:z.string(),requirement:z.enum(['required','conditional','preparation_only']),condition:z.string().optional(),sourceIds:z.array(z.string()),verification});
