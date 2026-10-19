@@ -1,6 +1,7 @@
 import { Scholarship } from '../types/scholarship';
 export type IncomeDecision = 'allowed' | 'over_cap' | 'unknown';
 export function checkIncome(s: Scholarship, annualIncome: number, strictlyAbove = false): IncomeDecision {
+  if (!Number.isFinite(annualIncome) || annualIncome < 0) return 'unknown';
   if (s.eligibility.incomeRuleStatus === 'explicitly_no_limit') return s.eligibility.verification === 'official_current' ? 'allowed' : 'unknown';
   const rules = s.eligibility.incomeRules;
   if (s.eligibility.incomeRuleStatus !== 'verified' || !rules.length) return 'unknown';

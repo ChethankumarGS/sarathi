@@ -108,3 +108,15 @@ test('Gemini key switches provider, reports enabled, parses candidates, never le
     assert.equal(res.code, 502); assert(!JSON.stringify(res.data).includes('unit-test-placeholder'));
   } finally { process.env = saved; globalThis.fetch = originalFetch; }
 });
+
+
+test('invalid income values cannot be classified as within a verified cap', () => {
+  const scholarship = structuredClone(catalogue.scholarships.find(s => s.id === 'aicte-pragati-degree')!);
+  for (const amount of [NaN, Infinity, -Infinity, -1]) {
+    assert.equal(checkIncome(scholarship, amount), 'unknown');
+    scholarship.eligibility.incomeRuleStatus = 'explicitly_no_limit';
+    assert.equal(checkIncome(scholarship, amount), 'unknown');
+    scholarship.eligibility.incomeRuleStatus = 'verified';
+  }
+  assert.equal(checkIncome(scholarship, 0), 'allowed');
+});
