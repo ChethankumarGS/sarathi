@@ -41,3 +41,11 @@ test('custom timestamps use UTC before deduplication and sorting',()=>{
  assert.deepEqual(planReminder(s,{...r,customDate:'not-a-date'},now).times,planReminder(s,r,now).times);
  assert.deepEqual(planReminder(s,{...r,customDate:'2026-11-01T00:00:00+05:30'},now).times,planReminder(s,r,now).times);
 });
+
+
+test('browse search ignores accidental surrounding spaces',()=>{
+ const ids=(query:string)=>filterScholarships(catalogue.scholarships,query,emptyFilters).map(s=>s.id);
+ assert.deepEqual(ids('  PRAGATI  '),ids('pragati'));
+ assert.ok(ids('pragati').length>0);
+ assert.deepEqual(ids('   '),ids(''));
+});
