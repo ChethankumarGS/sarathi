@@ -5,7 +5,7 @@ const r:ReminderPreference={id:'r',scholarshipId:s.id,academicYear:'2026-27',mod
 test('20 records, 17 scheme families, strict runtime validation',()=>{assert.equal(catalogue.scholarships.length,20);assert.equal(groupFamilies(catalogue.scholarships).length,17);assert.throws(()=>catalogueSchema.parse({...seed,academicYear:'2027-28'}));});
 test('postponed deadline replaces old schedule plan',()=>{const next=structuredClone(s);next.cycles[0].closesOn='2026-11-15';const p=planReminder(next,r,now);assert.equal(p.deadline,'2026-11-15');assert.equal(p.times[0],'2026-11-08T03:30:00.000Z');assert.ok(!p.times.includes('2026-10-24T03:30:00.000Z'));});
 test('removed deadline produces cancellation and no replacement times',()=>{const next=structuredClone(s);next.cycles[0].status='verify_on_portal';next.cycles[0].closesOn=null;assert.deepEqual(planReminder(next,r,now),{deadline:null,times:[],unavailable:true});});
-test('unavailable portal retains previous verified timestamp; unknown rows are never urgent',()=>{const snapshot=JSON.stringify(catalogue);const failedRefreshFallback=catalogue;assert.equal(JSON.stringify(failedRefreshFallback),snapshot);assert.equal(failedRefreshFallback.scholarships[0].cycles[0].checkedAt,'2026-10-13');assert.equal(planReminder(catalogue.scholarships[0],{...r,scholarshipId:catalogue.scholarships[0].id},now).deadline,'2027-01-31');});
+test('unavailable portal retains previous verified timestamp; unknown rows are never urgent',()=>{const snapshot=JSON.stringify(catalogue);const failedRefreshFallback=catalogue;assert.equal(JSON.stringify(failedRefreshFallback),snapshot);assert.equal(failedRefreshFallback.scholarships[0].cycles[0].checkedAt,'2026-10-13');assert.equal(planReminder(catalogue.scholarships[0],{...r,scholarshipId:catalogue.scholarships[0].id},now).deadline,null);});
 test('CSSS fresh and renewal dates are isolated',()=>{const csss=catalogue.scholarships.find(s=>s.id==='pm-usp-csss')!;assert.equal(planReminder(csss,{...r,scholarshipId:csss.id},now).unavailable,true);assert.equal(planReminder(csss,{...r,scholarshipId:csss.id,mode:'renewal'},now).deadline,'2026-10-31');});
 test('custom date alone plans a reminder when no deadline is known',()=>{const prize=catalogue.scholarships.find(s=>s.id==='ka-sc-prize-money')!;const p=planReminder(prize,{...r,scholarshipId:prize.id,customDate:'2026-12-01T03:30:00.000Z'},now);assert.equal(p.unavailable,false);assert.deepEqual(p.times,['2026-12-01T03:30:00.000Z']);assert.equal(planReminder(prize,{...r,scholarshipId:prize.id},now).unavailable,true);});
 test('past times and duplicate offsets are skipped',()=>{assert.equal(reminderTimes('2026-10-31',[7,7,3,1],now).length,3);assert.equal(reminderTimes('2026-10-12',[7,3,1],now).length,1);assert.equal(planReminder(s,r,Date.parse('2026-11-01')).unavailable,true);});
@@ -20,3 +20,13 @@ test('smart tags follow source-backed scheme identities; unverified district/EWS
 
 import {districts,matchingDistricts} from '../src/data/districts';
 test('district dropdown has 31 unique official names and renamed search alias',()=>{assert.equal(districts.length,31);assert.equal(new Set(districts).size,31);assert.deepEqual(matchingDistricts('raman'),['Bengaluru South']);assert.ok(matchingDistricts('ba').includes('Bengaluru Urban'));assert.equal(districts.includes('Ramanagara'),false);});
+
+
+test('unverified dates never create automatic deadline reminders',()=>{
+ const next=structuredClone(s);next.cycles[0].status='verify_on_portal';
+ assert.deepEqual(planReminder(next,r,now),{deadline:null,times:[],unavailable:true});
+ const customDate='2026-12-01T03:30:00.000Z';
+ assert.deepEqual(planReminder(next,{...r,customDate},now),{deadline:null,times:[customDate],unavailable:false});
+ next.cycles[0].status='not_applicable';
+ assert.equal(planReminder(next,r,now).unavailable,true);
+});
