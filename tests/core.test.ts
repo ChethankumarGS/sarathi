@@ -30,3 +30,14 @@ test('unverified dates never create automatic deadline reminders',()=>{
  next.cycles[0].status='not_applicable';
  assert.equal(planReminder(next,r,now).unavailable,true);
 });
+
+
+test('custom timestamps use UTC before deduplication and sorting',()=>{
+ const customDate='2026-10-24T09:00:00+05:30';
+ const plan=planReminder(s,{...r,customDate},now);
+ assert.equal(plan.times.filter(t=>Date.parse(t)===Date.parse(customDate)).length,1);
+ assert.ok(plan.times.every(t=>t.endsWith('Z')));
+ assert.deepEqual(plan.times,[...plan.times].sort());
+ assert.deepEqual(planReminder(s,{...r,customDate:'not-a-date'},now).times,planReminder(s,r,now).times);
+ assert.deepEqual(planReminder(s,{...r,customDate:'2026-11-01T00:00:00+05:30'},now).times,planReminder(s,r,now).times);
+});
